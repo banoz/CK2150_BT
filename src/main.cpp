@@ -56,7 +56,8 @@ static uint8_t m_rx_buf[m_length];  /**< RX buffer. */
 static volatile bool spis_xfer_done; /**< Flag used to indicate that SPIS instance completed the transfer. */
 static volatile int m_rx_bufPos = 0;
 
-void spis_event_handler(nrfx_spis_evt_t const* event, void* context) {
+void spis_event_handler(nrfx_spis_evt_t const *event, void *context)
+{
   if ((*event).evt_type == NRFX_SPIS_XFER_DONE)
   {
     m_rx_bufPos = (*event).rx_amount - 1;
@@ -65,17 +66,18 @@ void spis_event_handler(nrfx_spis_evt_t const* event, void* context) {
   }
 }
 
-void setup_spis(void) {
-  nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG;
+void setup_spis(void)
+{
+  nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG(SPIS_SCK_PIN, SPIS_MOSI_PIN, NRFX_SPIS_PIN_NOT_USED, SPIS_CS_PIN);
 
-  spis_config.sck_pin = SPIS_SCK_PIN;
-  spis_config.mosi_pin = SPIS_MOSI_PIN;
-  spis_config.csn_pin = SPIS_CS_PIN;
+  // spis_config.sck_pin = SPIS_SCK_PIN;
+  // spis_config.mosi_pin = SPIS_MOSI_PIN;
+  // spis_config.csn_pin = SPIS_CS_PIN;
 
   spis_config.bit_order = NRF_SPIS_BIT_ORDER_LSB_FIRST;
   spis_config.mode = NRF_SPIS_MODE_0;
 
-  nrfx_err_t result = nrfx_spis_init(&spis, &spis_config, spis_event_handler, (void*)NULL);
+  nrfx_err_t result = nrfx_spis_init(&spis, &spis_config, spis_event_handler, (void *)NULL);
 
   if (result > NRFX_ERROR_BASE_NUM)
   {
@@ -86,11 +88,12 @@ void setup_spis(void) {
   spis_xfer_done = true;
 }
 
-void connect_callback(uint16_t conn_handle) {
+void connect_callback(uint16_t conn_handle)
+{
   // Get the reference to current connection
-  BLEConnection* connection = Bluefruit.Connection(conn_handle);
+  BLEConnection *connection = Bluefruit.Connection(conn_handle);
 
-  char central_name[32] = { 0 };
+  char central_name[32] = {0};
   connection->getPeerName(central_name, sizeof(central_name));
 
   isConnected = true;
@@ -104,7 +107,8 @@ void connect_callback(uint16_t conn_handle) {
  * @param conn_handle connection where this event happens
  * @param reason is a BLE_HCI_STATUS_CODE which can be found in ble_hci.h
  */
-void disconnect_callback(uint16_t conn_handle, uint8_t reason) {
+void disconnect_callback(uint16_t conn_handle, uint8_t reason)
+{
   (void)conn_handle;
   (void)reason;
 
@@ -121,7 +125,8 @@ bool isInTimer;
 
 uint8_t timerState;
 
-void write_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint8_t* data, uint16_t len) {
+void write_callback(uint16_t conn_hdl, BLECharacteristic *chr, uint8_t *data, uint16_t len)
+{
   if (len == 7)
   {
     if (data[0] == 0x03)
@@ -145,7 +150,8 @@ void write_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint8_t* data, ui
   }
 }
 
-void cccd_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_value) {
+void cccd_callback(uint16_t conn_hdl, BLECharacteristic *chr, uint16_t cccd_value)
+{
   // Display the raw request packet
   DEBUG_PRINT("CCCD Updated: ");
   // Serial.printBuffer(request->data, request->len);
@@ -170,7 +176,8 @@ void cccd_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_valu
   }
 }
 
-void setupWS(void) {
+void setupWS(void)
+{
   ss.begin();
 
   wc.setProperties(CHR_PROPS_NOTIFY);
@@ -190,7 +197,8 @@ void setupWS(void) {
   rc.begin();
 }
 
-void startAdv(void) {
+void startAdv(void)
+{
   // Advertising packet
   Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
   Bluefruit.Advertising.addTxPower();
@@ -218,7 +226,8 @@ void startAdv(void) {
   Bluefruit.Advertising.start(0);             // 0 = Don't stop advertising after n seconds
 }
 
-void setup_ble(void) {
+void setup_ble(void)
+{
 
   // Initialise the Bluefruit module
   Bluefruit.begin();
@@ -254,7 +263,8 @@ void setup_ble(void) {
   DEBUG_PRINTLN("\nAdvertising");
 }
 
-void setup(void) {
+void setup(void)
+{
 
 #ifdef SERIAL_DEBUG_ENABLED
   Serial.begin(921600);
@@ -278,7 +288,8 @@ void setup(void) {
   setup_ble();
 }
 
-void parseC0(uint8_t buf[], char segments[]) {
+void parseC0(uint8_t buf[], char segments[])
+{
 
   u_int16_t rows[7];
 
@@ -363,7 +374,8 @@ void parseC0(uint8_t buf[], char segments[]) {
   }
 }
 
-void parseWeightTime(char segments[]) {
+void parseWeightTime(char segments[])
+{
   int time = segments[0] * 600 + segments[1] * 60 + segments[2] * 10 + segments[3];
   int weight = segments[5] * 1000 + segments[6] * 100 + segments[7] * 10 + segments[8];
   if (segments[4] == 0x0F)
@@ -389,7 +401,8 @@ void parseWeightTime(char segments[]) {
   }
 }
 
-void parseBuf(uint8_t buf[], int len) {
+void parseBuf(uint8_t buf[], int len)
+{
   if (buf[0] == 0x03)
   {
     DEBUG_PRINTLN("0x03");
@@ -426,13 +439,14 @@ void parseBuf(uint8_t buf[], int len) {
 
 uint32_t lastSpisUpdate = 0UL;
 
-void read_spis(void) {
+void read_spis(void)
+{
   if (spis_xfer_done)
   {
     parseBuf(m_rx_buf, m_rx_bufPos + 1);
 
     spis_xfer_done = false;
-    nrfx_err_t result = nrfx_spis_buffers_set(&spis, (uint8_t*)NULL, 0, m_rx_buf, m_length);
+    nrfx_err_t result = nrfx_spis_buffers_set(&spis, (uint8_t *)NULL, 0, m_rx_buf, m_length);
 
     if (result > NRFX_ERROR_BASE_NUM)
     {
@@ -446,7 +460,8 @@ void read_spis(void) {
 
 unsigned long clockMillisOffset = 0;
 
-void notifyWeight(int16_t weight) {
+void notifyWeight(int16_t weight)
+{
   DEBUG_PRINTLN("---");
   DEBUG_PRINTLNF(highByte(weight), BIN);
   DEBUG_PRINTLNF(lowByte(weight), BIN);
@@ -464,7 +479,7 @@ void notifyWeight(int16_t weight) {
   DEBUG_PRINT(":");
   DEBUG_PRINTLN(millis100On);
 
-  uint8_t wsdata[10] = { 0x03, 0xCA, highByte(weight), lowByte(weight), minutesOn, secondsOn, millis100On, 0, 0, 0 };
+  uint8_t wsdata[10] = {0x03, 0xCA, highByte(weight), lowByte(weight), minutesOn, secondsOn, millis100On, 0, 0, 0};
   wsdata[9] = wsdata[0] ^ wsdata[1] ^ wsdata[2] ^ wsdata[3] ^ wsdata[4] ^ wsdata[5] ^ wsdata[6] ^ wsdata[7] ^ wsdata[8];
 
   if (isNotifyEnabled)
@@ -475,8 +490,9 @@ void notifyWeight(int16_t weight) {
 
 uint8_t tareCounter = 0;
 
-void notifyTareDone() {
-  uint8_t wsdata[7] = { 0x03, 0x0F, tareCounter, 0, 0, 0xFE, 0 };
+void notifyTareDone()
+{
+  uint8_t wsdata[7] = {0x03, 0x0F, tareCounter, 0, 0, 0xFE, 0};
   wsdata[6] = wsdata[0] ^ wsdata[1] ^ wsdata[2] ^ wsdata[3] ^ wsdata[4] ^ wsdata[5];
 
   if (isNotifyEnabled)
@@ -489,7 +505,9 @@ uint32_t weightUpdateMillis = 0UL;
 uint32_t inTareUpdateMillis = 0UL;
 uint32_t batteryUpdateMillis = 0UL;
 
-void loop() {
+void loop()
+{
+  digitalWrite(LED_L, HIGH);
 
   read_spis();
 
@@ -532,7 +550,6 @@ void loop() {
   {
     if (batteryUpdateMillis < millis())
     {
-
       uint32_t battery = analogRead(PIN_VBAT);
 
       blebas.write((battery - 666) / 2.34);
@@ -541,14 +558,31 @@ void loop() {
     }
   }
 
-  if (millis() > lastSpisUpdate + 15000)
+  if (millis() > (lastSpisUpdate + 15000))
   {
     if (isConnected)
     {
       Bluefruit.disconnect(Bluefruit.connHandle());
-      delay(5000);
     }
-    sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
-    waitForEvent();
+    else
+    {
+      digitalWrite(LED_L, LOW);
+      digitalWrite(LED_R, LOW);
+      // this code will change SPIS pin setup so it is expected for the MCU to go into a reset after the wake up
+      (void)nrf_gpio_pin_read(SPIS_SCK_PIN);
+      if (nrf_gpio_pin_read(SPIS_SCK_PIN))
+      {
+        nrf_gpio_cfg_sense_set(SPIS_SCK_PIN, NRF_GPIO_PIN_SENSE_LOW);
+      }
+      else
+      {
+        nrf_gpio_cfg_sense_set(SPIS_SCK_PIN, NRF_GPIO_PIN_SENSE_HIGH);
+      }
+      if (sd_power_system_off() == NRF_SUCCESS)
+      {
+        while (1)
+          ;
+      }
+    }
   }
 }
