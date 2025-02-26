@@ -180,7 +180,7 @@ void setupWS(void)
 {
   ss.begin();
 
-  wc.setProperties(CHR_PROPS_NOTIFY);
+  wc.setProperties(CHR_PROPS_READ | CHR_PROPS_NOTIFY);
 
   wc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
   wc.setFixedLen(7);
@@ -558,7 +558,7 @@ void loop()
     }
   }
 
-  if (millis() > (lastSpisUpdate + 15000))
+  if (millis() > (lastSpisUpdate + 3000))
   {
     if (isConnected)
     {
