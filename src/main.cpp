@@ -479,8 +479,11 @@ void notifyWeight(int16_t weight)
   DEBUG_PRINT(":");
   DEBUG_PRINTLN(millis100On);
 
-  uint8_t wsdata[10] = {0x03, 0xCA, highByte(weight), lowByte(weight), minutesOn, secondsOn, millis100On, 0, 0, 0};
-  wsdata[9] = wsdata[0] ^ wsdata[1] ^ wsdata[2] ^ wsdata[3] ^ wsdata[4] ^ wsdata[5] ^ wsdata[6] ^ wsdata[7] ^ wsdata[8];
+  // uint8_t wsdata[10] = {0x03, 0xCA, highByte(weight), lowByte(weight), minutesOn, secondsOn, millis100On, 0, 0, 0};
+  // wsdata[9] = wsdata[0] ^ wsdata[1] ^ wsdata[2] ^ wsdata[3] ^ wsdata[4] ^ wsdata[5] ^ wsdata[6] ^ wsdata[7] ^ wsdata[8];
+
+  uint8_t wsdata[7] = {0x03, 0xCA, highByte(weight), lowByte(weight), 0, 0, 0};
+  wsdata[6] = wsdata[0] ^ wsdata[1] ^ wsdata[2] ^ wsdata[3] ^ wsdata[4] ^ wsdata[5];
 
   if (isNotifyEnabled)
   {
